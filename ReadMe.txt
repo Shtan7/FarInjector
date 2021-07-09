@@ -1,6 +1,13 @@
 В данном репозитории представлен код загрузчика, способного
 загрузить в 32-битное приложение 64-битный код в виде длл.
 
+Проект активно использует механизм, позволяющий на лету
+изменять режим работы процессора из обычного защищенного в длинный.
+Возможно это благодаря far переходу на другой сегмент, во флагах которого
+отсутствует бит длинного режима.
+
+
+
 В WOW64 приложениях присутствует 64-битная версия ntdll.dll, адрес
 которой возможно получить через LDR таблицу. С помощью LdrLoadDll происходит
 загрузка 64-битной kernel32.dll, а далее через LoadLibrary загрузка необходимой нам
@@ -21,7 +28,13 @@ ZwMapViewOfSection, при попытке замапить библиотеку 
 ========================================================================
 
 This repository contains a loader code that can load a x64 code into an
-x32 application. 
+x32 application.
+
+The project uses a processor feature that allows you to change the operating
+mode from normal protected to long on the fly. This is possible due to far calls\jmps 
+to another segment in the flags of which the long mode bit is not set.
+
+
 
 All WOW64 applications have a x64 bit version of ntdll.dll. We can get
 its address with LDR table. With LdrLoadDll we load x64 kernel32.dll and
