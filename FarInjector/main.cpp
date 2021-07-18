@@ -120,7 +120,7 @@ int main()
 
 	uint64_t output_address;
 	x64::UNICODE_STRING kernel32_nt;
-	kernel32_nt.Buffer = (uint64_t)L"KERNEL32.DLL";
+	kernel32_nt.Buffer = reinterpret_cast<uint64_t>(L"KERNEL32.DLL");
 	kernel32_nt.Length = 0x18;
 	kernel32_nt.MaximumLength = 0x1a;
 
@@ -133,13 +133,13 @@ int main()
 	uint64_t base_address = parser_obj->parse_dll_in_ldr_table(L"KERNELBASE.dll");
 	auto func_addr = parser_obj->find_export_in_dll(base_address, { {"LoadLibraryA"} });
 
-	char test_dll[] = "x64_dll.dll";
-	x64::call_api(func_addr[0].second, reinterpret_cast<uint64_t>(test_dll));
+	std::string_view test_dll = "x64_dll.dll";
+	x64::call_api(func_addr[0].second, reinterpret_cast<uint64_t>(test_dll.data()));
 
 	base_address = parser_obj->parse_dll_in_ldr_table(L"x64_dll.dll");
 	func_addr = parser_obj->find_export_in_dll(base_address, { {"test_function"} });
 
-	x64::call_api(func_addr[0].second, 0);
+	x64::call_api(func_addr.begin()->second, 0);
 
 	system("pause");
 	return 0;

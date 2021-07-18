@@ -4,6 +4,8 @@
 #include <Windows.h>
 #include <memory>
 #include <vector>
+#include <deque>
+#include <iostream>
 
 #define STR_MERGE_IMPL(a, b) a##b
 #define STR_MERGE(a, b) STR_MERGE_IMPL(a, b)
@@ -99,7 +101,7 @@ namespace x64_shellcode
         "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
         "\x00\x00\x00\x00";
 
-    inline std::unordered_map<char*, uint32_t> x64_functions = { { get_x64_peb_address_shellcode, sizeof(get_x64_peb_address_shellcode) - 1 },
+    inline std::vector<std::pair<char*, uint32_t>> x64_functions = { { get_x64_peb_address_shellcode, sizeof(get_x64_peb_address_shellcode) - 1 },
         { x64_memcpy_shellcode, sizeof(x64_memcpy_shellcode) - 1 }, { get_string_shellcode, sizeof(get_string_shellcode) - 1 },
         { x64_api_call_shellcode, sizeof(x64_api_call_shellcode) - 1 }, { get_x64_teb_address_shellcode, sizeof(get_x64_teb_address_shellcode) - 1 } };
 }
@@ -224,9 +226,9 @@ public:
     parser();
     uint64_t get_function_address(std::string fn_name);
     uint64_t get_library_address(std::string library_name);
-    uint64_t parse_dll_in_ldr_table(const std::wstring& dll_name);
-    uint64_t parse_ldr_entry(const std::wstring& dll_name);
-    uint64_t find_entry(uint64_t ldr, uint64_t list_flink, const std::wstring& dll_name, uint64_t custom_offset = 0);
+    uint64_t parse_dll_in_ldr_table(std::wstring_view dll_name);
+    uint64_t parse_ldr_entry(std::wstring_view dll_name);
+    uint64_t find_entry(uint64_t ldr, uint64_t list_flink, std::wstring_view dll_name, uint64_t custom_offset = 0);
     uint64_t get_first_ldr_entry(uint32_t index = 0);
-    std::vector<std::pair<std::string, uint64_t>> find_export_in_dll(uint64_t base_address, const std::vector<std::string>& functions);
+    std::deque<std::pair<std::string, uint64_t>> find_export_in_dll(uint64_t base_address, const std::vector<std::string>& functions);
 };

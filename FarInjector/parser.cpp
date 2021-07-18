@@ -1,12 +1,10 @@
 #include "dll_related_things.hpp"
-#include <intrin.h>
-#include <winternl.h>
 #include <algorithm>
 #include <shlwapi.h>
 #pragma comment(lib, "Shlwapi.lib")
 
-// iterate over linked list and searches the dll with specific name
-uint64_t parser::find_entry(uint64_t ldr_mod, uint64_t list_flink, const std::wstring& dll_name, uint64_t custom_offset)
+// iterate over linked list and search the dll with specific name
+uint64_t parser::find_entry(uint64_t ldr_mod, uint64_t list_flink, std::wstring_view dll_name, uint64_t custom_offset)
 {
     if (custom_offset == 0)
     {
@@ -24,7 +22,7 @@ uint64_t parser::find_entry(uint64_t ldr_mod, uint64_t list_flink, const std::ws
 
             if (target_address != 0)
             {
-                if (StrStrIW(reinterpret_cast<wchar_t*>(target_address), dll_name.c_str()))
+                if (StrStrIW(reinterpret_cast<wchar_t*>(target_address), dll_name.data()))
                 {
                     return ldr_mod;
                 }
@@ -51,7 +49,7 @@ uint64_t parser::find_entry(uint64_t ldr_mod, uint64_t list_flink, const std::ws
 
             if (target_address != 0)
             {
-                if (StrStrIW(reinterpret_cast<wchar_t*>(target_address), dll_name.c_str()))
+                if (StrStrIW(reinterpret_cast<wchar_t*>(target_address), dll_name.data()))
                 {
                     return ldr_mod;
                 }
@@ -82,7 +80,7 @@ uint64_t parser::get_first_ldr_entry(uint32_t index)
 }
 
 // get address of ldr entry by name
-uint64_t parser::parse_ldr_entry(const std::wstring& dll_name)
+uint64_t parser::parse_ldr_entry(std::wstring_view dll_name)
 {
     uint64_t list_flink = get_first_ldr_entry();
     uint64_t ldr_mod = list_flink;
@@ -98,7 +96,7 @@ uint64_t parser::parse_ldr_entry(const std::wstring& dll_name)
 }
 
 // get base address of dll
-uint64_t parser::parse_dll_in_ldr_table(const std::wstring& dll_name)
+uint64_t parser::parse_dll_in_ldr_table(std::wstring_view dll_name)
 {
     std::string ansi_dll_name = { dll_name.begin(), dll_name.end() };
 
@@ -146,9 +144,9 @@ parser::parser()
 }
 
 // parse export table of dll
-std::vector<std::pair<std::string, uint64_t>> parser::find_export_in_dll(uint64_t base_address, const std::vector<std::string>& functions)
+std::deque<std::pair<std::string, uint64_t>> parser::find_export_in_dll(uint64_t base_address, const std::vector<std::string>& functions)
 {
-    std::vector<std::pair<std::string, uint64_t>> result;
+    std::deque<std::pair<std::string, uint64_t>> result;
 
     uint64_t target_address;
     DWORD virtual_address;
@@ -209,7 +207,7 @@ std::vector<std::pair<std::string, uint64_t>> parser::find_export_in_dll(uint64_
 
                 asm_fn::x64_memcpy(&target_address, &virtual_address, sizeof(virtual_address));
 
-                api_name.erase(std::remove(api_name.begin(), api_name.end(), '\0'), api_name.end());
+                std::erase(api_name, '\0');
 
                 result.push_back({ api_name, base_address + virtual_address });
 

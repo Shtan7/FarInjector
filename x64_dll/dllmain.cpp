@@ -9,7 +9,7 @@
     You can't use most of the exported functions from kernel32.dll
     and kernelbase.dll but you can freely use the ntdll.dll export.
 */
-uint64_t parse_function_from_ntdll(std::string function_name)
+uint64_t parse_function_from_ntdll(std::string_view function_name)
 {
     static void* ntdll_base = nullptr;
 
@@ -44,8 +44,8 @@ uint64_t parse_function_from_ntdll(std::string function_name)
 
     for (int j = 0; j < export_table->NumberOfNames; j++)
     {
-        const std::string current_function = reinterpret_cast<char*>(name_table[j] + base_as_number);
-        if (StrStrIA(current_function.c_str(), function_name.c_str()))
+        std::string_view current_function = reinterpret_cast<char*>(name_table[j] + base_as_number);
+        if (StrStrIA(current_function.data(), function_name.data()))
         {
             auto ord = ordinal_table[j];
             return function_table[ord] + base_as_number;
