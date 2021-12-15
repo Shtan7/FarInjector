@@ -4,7 +4,7 @@
 Проект активно использует механизм, позволяющий на лету
 изменять режим работы процессора из обычного защищенного в длинный.
 Возможно это благодаря far переходу на другой сегмент, во флагах которого
-отсутствует бит длинного режима.
+присутствует бит длинного режима.
 
 
 
@@ -32,7 +32,7 @@ x32 application.
 
 The project uses a processor feature that allows you to change the operating
 mode from normal protected to long on the fly. This is possible due to far calls\jmps 
-to another segment in the flags of which the long mode bit is not set.
+to another segment in the flags of which the long mode bit is set.
 
 
 
